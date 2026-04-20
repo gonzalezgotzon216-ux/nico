@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plan de Aprendizaje · 5 Semanas</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f8f7f4; --s: #ffffff; --s2: #f1efe8; --s3: #e8e6e0;
+  --b: rgba(0,0,0,0.07); --b2: rgba(0,0,0,0.13);
+  --t: #1a1a18; --t2: #5f5e5a; --t3: #888780;
+  --teal: #1D9E75; --teal-l: #E1F5EE;
+  --blue: #378ADD; --blue-l: #E6F1FB;
+  --amber: #BA7517; --amber-l: #FAEEDA;
+  --purple: #7F77DD; --purple-l: #EEEDFE;
+  --r: 12px; --rs: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #161614; --s: #1e1e1c; --s2: #242422; --s3: #2c2c2a;
+    --b: rgba(255,255,255,0.07); --b2: rgba(255,255,255,0.13);
+    --t: #f1efe8; --t2: #b4b2a9; --t3: #888780;
+    --teal-l: #085041; --blue-l: #0C447C; --amber-l: #633806; --purple-l: #3C3489;
+  }
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--t); min-height: 100vh; font-size: 15px; }
+.app { max-width: 960px; margin: 0 auto; padding: 2rem 1.25rem 5rem; }
+
+.hero { margin-bottom: 1.75rem; display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.hero h1 { font-size: 22px; font-weight: 600; }
+.hero p { font-size: 13px; color: var(--t3); margin-top: 3px; }
+.saved { font-size: 12px; color: var(--teal); background: var(--teal-l); padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
+
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 1.75rem; }
+.mc { background: var(--s); border: 0.5px solid var(--b2); border-radius: var(--r); padding: 1rem 1.1rem; position: relative; overflow: hidden; }
+.mc::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: var(--r) var(--r) 0 0; }
+.mc.ct::after { background: var(--teal); }
+.mc.cb::after { background: var(--blue); }
+.mc.ca::after { background: #EF9F27; }
+.mc.cp::after { background: var(--purple); }
+.mc.cg::after { background: #EF9F27; }
+.mc-l { font-size: 11px; color: var(--t3); margin-bottom: 5px; }
+.mc-v { font-size: 24px; font-weight: 600; line-height: 1; }
+.mc-s { font-size: 11px; color: var(--t3); margin-top: 4px; }
+
+.bp-section {
+  background: var(--s); border: 0.5px solid var(--b2); border-radius: var(--r);
+  padding: 1.1rem 1.25rem; margin-bottom: 1.75rem;
+}
+.bp-top { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.bp-big { flex-shrink: 0; }
+.bp-big-val { font-size: 38px; font-weight: 700; color: #BA7517; line-height: 1; }
+.bp-big-lbl { font-size: 12px; color: var(--t3); margin-top: 2px; }
+.bp-cards { display: flex; gap: 8px; flex: 1; flex-wrap: wrap; }
+.bpc {
+  flex: 1; min-width: 80px;
+  border: 0.5px solid var(--b2); border-radius: var(--rs);
+  background: var(--s2); padding: 8px 10px;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  position: relative; transition: all 0.2s;
+}
+.bpc.earned { background: var(--amber-l); border-color: #EF9F27; }
+.bpc-ico {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--s3); border: 1.5px solid var(--b2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; transition: all 0.2s;
+}
+.bpc.earned .bpc-ico { background: #EF9F27; border-color: #EF9F27; }
+.bpc-pts { font-size: 14px; font-weight: 600; color: var(--t); }
+.bpc.earned .bpc-pts { color: #633806; }
+.bpc-lbl { font-size: 10px; color: var(--t3); text-align: center; line-height: 1.3; }
+.bpc.earned .bpc-lbl { color: #854F0B; }
+.bpc-check {
+  position: absolute; top: -6px; right: -6px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--teal); display: none;
+  align-items: center; justify-content: center;
+  border: 1.5px solid var(--s);
+}
+.bpc.earned .bpc-check { display: flex; }
+.bpc-check::after {
+  content: ''; width: 6px; height: 4px;
+  border-left: 1.5px solid white; border-bottom: 1.5px solid white;
+  transform: rotate(-45deg) translateY(-1px);
+}
+.bp-bar-wrap { }
+.bp-bar-hdr { display: flex; justify-content: space-between; font-size: 11px; color: var(--t3); margin-bottom: 5px; }
+.bp-track { height: 8px; background: var(--s3); border-radius: 4px; overflow: hidden; }
+.bp-fill { height: 100%; border-radius: 4px; background: #EF9F27; transition: width 0.5s ease; }
+
+.overall-wrap { margin-bottom: 1.75rem; }
+.overall-hdr { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 7px; }
+.overall-hdr span { font-size: 13px; color: var(--t2); }
+.overall-hdr strong { font-size: 14px; }
+.overall-track { height: 10px; background: var(--s2); border-radius: 5px; overflow: hidden; }
+.overall-fill { height: 100%; background: var(--teal); border-radius: 5px; transition: width 0.5s ease; }
+
+.week-nav { display: flex; gap: 6px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.wbtn {
+  flex: 1; min-width: 110px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 8px 10px; border-radius: var(--rs); border: 0.5px solid var(--b2);
+  background: var(--s); cursor: pointer; font-size: 12px; color: var(--t2);
+  transition: all 0.15s;
+}
+.wbtn:hover { background: var(--s2); }
+.wbtn.on { border-color: var(--teal); background: var(--teal-l); color: var(--teal); }
+.wbtn-name { font-size: 13px; font-weight: 500; }
+.wbtn-bar { width: 100%; height: 4px; background: var(--b2); border-radius: 2px; overflow: hidden; }
+.wbtn-bar-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
+
+.grid { display: grid; grid-template-columns: 1fr 300px; gap: 1.25rem; align-items: start; }
+@media (max-width: 680px) { .grid { grid-template-columns: 1fr; } }
+
+.card { background: var(--s); border: 0.5px solid var(--b2); border-radius: var(--r); overflow: hidden; }
+.card-hd { padding: 0.9rem 1.2rem; border-bottom: 0.5px solid var(--b); display: flex; align-items: center; justify-content: space-between; }
+.card-hd h2 { font-size: 14px; font-weight: 500; }
+.bdg { font-size: 11px; padding: 3px 8px; border-radius: 20px; background: var(--s2); color: var(--t3); font-weight: 500; }
+.bdg.ok { background: var(--teal); color: white; }
+
+.trow { display: flex; align-items: flex-start; gap: 10px; padding: 11px 1.2rem; border-bottom: 0.5px solid var(--b); cursor: pointer; transition: background 0.1s; user-select: none; }
+.trow:last-child { border-bottom: none; }
+.trow:hover { background: var(--s2); }
+.trow.done { }
+.dpill { font-size: 11px; font-weight: 500; padding: 2px 6px; border-radius: 5px; background: var(--s2); color: var(--t3); min-width: 34px; text-align: center; flex-shrink: 0; margin-top: 2px; }
+.trow.done .dpill { background: var(--teal-l); color: var(--teal); }
+.cbox { width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid var(--b2); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; margin-top: 1px; }
+.trow.done .cbox { background: var(--teal); border-color: var(--teal); }
+.ck { display: none; width: 8px; height: 5px; border-left: 1.5px solid #fff; border-bottom: 1.5px solid #fff; transform: rotate(-45deg) translateY(-1px); }
+.trow.done .ck { display: block; }
+.ttxt { font-size: 13px; flex: 1; line-height: 1.5; }
+.trow.done .ttxt { text-decoration: line-through; color: var(--t3); }
+.bp-tag { font-size: 10px; font-weight: 600; color: #854F0B; background: var(--amber-l); padding: 2px 6px; border-radius: 4px; flex-shrink: 0; margin-top: 3px; white-space: nowrap; }
+
+.side { display: flex; flex-direction: column; gap: 1rem; }
+.panel { background: var(--s); border: 0.5px solid var(--b2); border-radius: var(--r); padding: 1rem 1.1rem; }
+.ptitle { font-size: 11px; font-weight: 500; color: var(--t3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+
+.wbr { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.wbr:last-child { margin-bottom: 0; }
+.wbr-l { font-size: 12px; color: var(--t2); width: 46px; flex-shrink: 0; }
+.wbr-track { flex: 1; height: 8px; background: var(--s2); border-radius: 4px; overflow: hidden; }
+.wbr-fill { height: 100%; border-radius: 4px; transition: width 0.4s; }
+.wbr-p { font-size: 11px; color: var(--t3); width: 28px; text-align: right; flex-shrink: 0; }
+
+.ddr { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.ddr:last-child { margin-bottom: 0; }
+.ddr-l { font-size: 12px; color: var(--t2); width: 28px; }
+.ddr-track { flex: 1; height: 7px; background: var(--s2); border-radius: 4px; overflow: hidden; }
+.ddr-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+.ddr-s { font-size: 11px; width: 58px; text-align: right; }
+.ddr-s.ok { color: var(--teal); }
+.ddr-s.no { color: var(--t3); }
+
+.chart-wrap { position: relative; width: 100%; height: 150px; }
+
+.agrid { display: flex; flex-wrap: wrap; gap: 4px; }
+.adot {
+  width: 22px; height: 22px; border-radius: 5px;
+  background: var(--s2); border: 0.5px solid var(--b);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 500; color: var(--t3); transition: all 0.2s;
+}
+.adot.done { color: white; }
+
+.wdone-msg { background: var(--teal-l); border-radius: var(--rs); padding: 7px 10px; font-size: 12px; color: var(--teal); font-weight: 500; text-align: center; display: none; margin-bottom: 8px; }
+.wdone-msg.show { display: block; }
+
+.reset-btn { width: 100%; margin-top: 10px; padding: 7px; border-radius: var(--rs); border: 0.5px solid var(--b2); background: transparent; color: var(--t3); font-size: 12px; cursor: pointer; transition: all 0.15s; }
+.reset-btn:hover { background: var(--s2); color: var(--t2); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="hero">
+    <div>
+      <h1>Plan de aprendizaje · 5 semanas</h1>
+      <p>Marca las tareas completadas · Progreso guardado automáticamente</p>
+    </div>
+    <div class="saved" id="saved">Guardado</div>
+  </div>
+
+  <div class="metrics">
+    <div class="mc ct"><div class="mc-l">Progreso global</div><div class="mc-v" id="m-pct">0%</div><div class="mc-s" id="m-sub">0 de 35 tareas</div></div>
+    <div class="mc cb"><div class="mc-l">Semana activa</div><div class="mc-v" id="m-week">S1</div><div class="mc-s" id="m-wsub">0% completada</div></div>
+    <div class="mc ca"><div class="mc-l">Racha actual</div><div class="mc-v" id="m-streak">0</div><div class="mc-s">días seguidos</div></div>
+    <div class="mc cg"><div class="mc-l">BP acumulados</div><div class="mc-v" id="m-bp" style="color:#BA7517">0</div><div class="mc-s">puntos ganados</div></div>
+    <div class="mc cp"><div class="mc-l">Semanas completas</div><div class="mc-v" id="m-wc">0</div><div class="mc-s">de 5 semanas</div></div>
+  </div>
+
+  <div class="bp-section">
+    <div class="bp-top">
+      <div class="bp-big">
+        <div class="bp-big-val" id="bp-val">0</div>
+        <div class="bp-big-lbl">BP totales</div>
+      </div>
+      <div class="bp-cards" id="bp-cards"></div>
+    </div>
+    <div class="bp-bar-wrap">
+      <div class="bp-bar-hdr"><span>Progreso hacia el máximo</span><span id="bp-bar-txt">0 / 282 BP</span></div>
+      <div class="bp-track"><div class="bp-fill" id="bp-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <div class="overall-wrap">
+    <div class="overall-hdr"><span>Avance total del plan</span><strong id="overall-txt">0 / 35 tareas</strong></div>
+    <div class="overall-track"><div class="overall-fill" id="overall-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="week-nav" id="week-nav"></div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-hd"><h2 id="wtitle">Semana 1</h2><span class="bdg" id="wbadge">0/7</span></div>
+      <div id="tlist"></div>
+    </div>
+    <div class="side">
+      <div class="panel">
+        <div class="ptitle">Por semana</div>
+        <div id="wbars"></div>
+      </div>
+      <div class="panel">
+        <div class="ptitle">Días de la semana activa</div>
+        <div id="dgrid"></div>
+      </div>
+      <div class="panel">
+        <div class="ptitle">Avance acumulado</div>
+        <div class="chart-wrap"><canvas id="chart" role="img" aria-label="Avance por semana">Avance por semana del plan.</canvas></div>
+      </div>
+      <div class="panel">
+        <div class="ptitle">Mapa de actividad</div>
+        <div class="wdone-msg" id="wdone-msg">¡Semana completada! Excelente.</div>
+        <div class="agrid" id="agrid"></div>
+        <button class="reset-btn" onclick="doReset()">Reiniciar progreso</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const BP_STEPS = [
+  { label: 'LP1', sub: 'Dom · S1', bp: 59, wi: 0, di: 6 },
+  { label: 'LP2', sub: 'Dom · S3', bp: 67, wi: 2, di: 6 },
+  { label: 'LP3', sub: 'Dom · S4', bp: 75, wi: 3, di: 6 },
+  { label: 'LP4', sub: 'Dom · S5', bp: 81, wi: 4, di: 6 },
+];
+const BP_MAX = BP_STEPS.reduce((a, s) => a + s.bp, 0);
+
+const WKS = [
+  { name: 'Semana 1', sub: 'Small Talk y Comunicación', c: '#1D9E75', tasks: [
+    { d:'Lun', t:'Leer 40 páginas de Small Talk' },
+    { d:'Mar', t:'Leer 40 páginas de Small Talk' },
+    { d:'Mié', t:'Leer 40 páginas de Small Talk' },
+    { d:'Jue', t:'Leer 40 páginas de Small Talk' },
+    { d:'Vie', t:'Leer 40 páginas de Small Talk' },
+    { d:'Sáb', t:'Artículos semanales + Curso "Comunicar ideas"' },
+    { d:'Dom', t:'Escribir 2 essays + Informe Learning Pack 1', bp: 59 },
+  ]},
+  { name: 'Semana 2', sub: 'Negociación Avanzada', c: '#378ADD', tasks: [
+    { d:'Lun', t:'Leer 42 páginas de Rompe la barrera del no' },
+    { d:'Mar', t:'Leer 42 páginas de Rompe la barrera del no' },
+    { d:'Mié', t:'Leer 42 páginas de Rompe la barrera del no' },
+    { d:'Jue', t:'Leer 42 páginas de Rompe la barrera del no' },
+    { d:'Vie', t:'Leer 42 páginas de Rompe la barrera del no' },
+    { d:'Sáb', t:'Leer 42 páginas de Rompe la barrera del no' },
+    { d:'Dom', t:'Leer 42 páginas de Rompe la barrera del no + Artículos' },
+  ]},
+  { name: 'Semana 3', sub: 'Habilidades Sociales', c: '#BA7517', tasks: [
+    { d:'Lun', t:'Leer 52 páginas de How to Talk to Anyone' },
+    { d:'Mar', t:'Leer 52 páginas de How to Talk to Anyone' },
+    { d:'Mié', t:'Leer 52 páginas de How to Talk to Anyone' },
+    { d:'Jue', t:'Leer 52 páginas de How to Talk to Anyone' },
+    { d:'Vie', t:'Leer 52 páginas de How to Talk to Anyone' },
+    { d:'Sáb', t:'52 páginas + Curso Google "Cómo hablar en público"' },
+    { d:'Dom', t:'52 páginas + Informe Learning Pack 2', bp: 67 },
+  ]},
+  { name: 'Semana 4', sub: 'Posicionamiento y Marketing', c: '#D4537E', tasks: [
+    { d:'Lun', t:'Leer The Brand Gap (completo)' },
+    { d:'Mar', t:'Leer 41 páginas de Esto es marketing' },
+    { d:'Mié', t:'Leer 41 páginas de Esto es marketing' },
+    { d:'Jue', t:'Leer 41 páginas de Esto es marketing' },
+    { d:'Vie', t:'Leer 41 páginas de Esto es marketing' },
+    { d:'Sáb', t:'41 páginas + Curso Google "Conectar con clientes"' },
+    { d:'Dom', t:'41 páginas + Artículos + Informe Learning Pack 3', bp: 75 },
+  ]},
+  { name: 'Semana 5', sub: 'Consolidación de Conversación', c: '#7F77DD', tasks: [
+    { d:'Lun', t:'Leer 31 páginas de How to Talk to Anyone, Anytime, Anywhere' },
+    { d:'Mar', t:'Leer 31 páginas de How to Talk to Anyone, Anytime, Anywhere' },
+    { d:'Mié', t:'Leer 31 páginas de How to Talk to Anyone, Anytime, Anywhere' },
+    { d:'Jue', t:'Leer 31 páginas de How to Talk to Anyone, Anytime, Anywhere' },
+    { d:'Vie', t:'Leer 31 páginas de How to Talk to Anyone, Anytime, Anywhere' },
+    { d:'Sáb', t:'Leer 31 páginas de How to Talk to Anyone, Anytime, Anywhere' },
+    { d:'Dom', t:'31 páginas + Artículos + Informe Learning Pack 4', bp: 81 },
+  ]},
+];
+
+const TOTAL = WKS.reduce((a, w) => a + w.tasks.length, 0);
+let st = {}, aw = 0, ch = null;
+
+function load() {
+  try { const p = JSON.parse(localStorage.getItem('lp_v3') || '{}'); st = p.st || {}; aw = p.aw || 0; } catch(e) {}
+}
+function save() {
+  try {
+    localStorage.setItem('lp_v3', JSON.stringify({ st, aw }));
+    const el = document.getElementById('saved');
+    el.textContent = 'Guardado ✓';
+    setTimeout(() => el.textContent = 'Guardado', 1500);
+  } catch(e) {}
+}
+
+const K = (w, d) => `${w}_${d}`;
+const wD = w => WKS[w].tasks.filter((_, i) => st[K(w, i)]).length;
+const wP = w => Math.round(wD(w) / WKS[w].tasks.length * 100);
+const tD = () => WKS.reduce((a, _, w) => a + wD(w), 0);
+const bpTotal = () => BP_STEPS.reduce((a, s) => st[K(s.wi, s.di)] ? a + s.bp : a, 0);
+const streak = () => {
+  const all = []; WKS.forEach((w, wi) => w.tasks.forEach((_, di) => all.push(K(wi, di))));
+  let s = 0; for (let i = all.length - 1; i >= 0; i--) { if (st[all[i]]) s++; else break; } return s;
+};
+
+function render() {
+  const td = tD(), tp = Math.round(td / TOTAL * 100), bp = bpTotal();
+
+  document.getElementById('m-pct').textContent = tp + '%';
+  document.getElementById('m-sub').textContent = `${td} de ${TOTAL} tareas`;
+  document.getElementById('m-week').textContent = `S${aw + 1}`;
+  document.getElementById('m-wsub').textContent = wP(aw) + '% completada';
+  document.getElementById('m-streak').textContent = streak();
+  document.getElementById('m-bp').textContent = bp;
+  document.getElementById('m-wc').textContent = WKS.filter((_, w) => wP(w) === 100).length;
+  document.getElementById('overall-fill').style.width = tp + '%';
+  document.getElementById('overall-txt').textContent = `${td} / ${TOTAL} tareas`;
+  document.getElementById('bp-val').textContent = bp;
+  document.getElementById('bp-fill').style.width = Math.round(bp / BP_MAX * 100) + '%';
+  document.getElementById('bp-bar-txt').textContent = `${bp} / ${BP_MAX} BP`;
+
+  document.getElementById('bp-cards').innerHTML = BP_STEPS.map(s => {
+    const earned = !!st[K(s.wi, s.di)];
+    return `<div class="bpc ${earned ? 'earned' : ''}">
+      <div class="bpc-check"></div>
+      <div class="bpc-ico">${earned ? '★' : '☆'}</div>
+      <div class="bpc-pts">${s.bp} BP</div>
+      <div class="bpc-lbl">${s.label}<br>${s.sub}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('week-nav').innerHTML = WKS.map((w, i) => {
+    const p = wP(i);
+    return `<button class="wbtn ${i === aw ? 'on' : ''}" onclick="selW(${i})">
+      <span class="wbtn-name">${w.name}</span>
+      <div class="wbtn-bar"><div class="wbtn-bar-fill" style="width:${p}%;background:${w.c}"></div></div>
+      <span style="font-size:11px">${p}%</span>
+    </button>`;
+  }).join('');
+
+  const W = WKS[aw];
+  const wd = wD(aw);
+  document.getElementById('wtitle').textContent = `${W.name} — ${W.sub}`;
+  const bdg = document.getElementById('wbadge');
+  bdg.textContent = `${wd}/${W.tasks.length}`;
+  bdg.className = 'bdg' + (wd === W.tasks.length ? ' ok' : '');
+
+  document.getElementById('tlist').innerHTML = W.tasks.map((t, i) => {
+    const done = !!st[K(aw, i)];
+    const bpT = t.bp ? `<span class="bp-tag">+${t.bp} BP</span>` : '';
+    return `<div class="trow ${done ? 'done' : ''}" onclick="tog(${aw},${i})">
+      <div class="dpill">${t.d}</div>
+      <div class="cbox"><div class="ck"></div></div>
+      <div class="ttxt">${t.t}</div>
+      ${bpT}
+    </div>`;
+  }).join('');
+
+  document.getElementById('wbars').innerHTML = WKS.map((w, i) => {
+    const p = wP(i);
+    return `<div class="wbr">
+      <div class="wbr-l">S${i + 1}</div>
+      <div class="wbr-track"><div class="wbr-fill" style="width:${p}%;background:${w.c}"></div></div>
+      <div class="wbr-p">${p}%</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('dgrid').innerHTML = W.tasks.map((t, i) => {
+    const done = !!st[K(aw, i)];
+    return `<div class="ddr">
+      <div class="ddr-l">${t.d}</div>
+      <div class="ddr-track"><div class="ddr-fill" style="width:${done ? 100 : 0}%;background:${W.c}"></div></div>
+      <div class="ddr-s ${done ? 'ok' : 'no'}">${done ? 'Hecho' : 'Pendiente'}</div>
+    </div>`;
+  }).join('');
+
+  const wdm = document.getElementById('wdone-msg');
+  wdm.className = 'wdone-msg' + (wP(aw) === 100 ? ' show' : '');
+
+  let agHtml = '';
+  WKS.forEach((w, wi) => w.tasks.forEach((t, di) => {
+    const done = !!st[K(wi, di)];
+    const style = done ? `background:${w.c};border-color:${w.c}` : '';
+    agHtml += `<div class="adot ${done ? 'done' : ''}" style="${style}" title="S${wi+1} ${t.d}">${t.d[0]}</div>`;
+  }));
+  document.getElementById('agrid').innerHTML = agHtml;
+
+  renderChart();
+}
+
+function renderChart() {
+  const ctx = document.getElementById('chart');
+  const data = WKS.map((_, i) => wP(i));
+  const colors = WKS.map(w => w.c);
+  const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+  const gc = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+  const tc = '#888780';
+  if (ch) { ch.data.datasets[0].data = data; ch.update('none'); return; }
+  ch = new Chart(ctx, {
+    type: 'bar',
+    data: { labels: WKS.map((_, i) => `S${i+1}`), datasets: [{ data, backgroundColor: colors, borderRadius: 5, borderSkipped: false }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.raw}%` } } },
+      scales: {
+        y: { min: 0, max: 100, ticks: { callback: v => v + '%', color: tc, font: { size: 10 }, stepSize: 50 }, grid: { color: gc }, border: { display: false } },
+        x: { ticks: { color: tc, font: { size: 11 }, autoSkip: false }, grid: { display: false }, border: { display: false } }
+      }
+    }
+  });
+}
+
+function tog(w, d) { st[K(w, d)] = !st[K(w, d)]; save(); render(); }
+function selW(i) { aw = i; save(); render(); }
+function doReset() {
+  if (confirm('¿Reiniciar todo el progreso? No se puede deshacer.')) { st = {}; aw = 0; save(); render(); }
+}
+
+load(); render();
+</script>
+</body>
+</html>
